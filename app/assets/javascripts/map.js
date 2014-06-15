@@ -28,7 +28,7 @@ $(document).ready(function() {
 
   map = L.map('map').setView([42.349624, -71.083603], 13);
   L.tileLayer('http://{s}.tiles.mapbox.com/v3/willpots.ih11j74m/{z}/{x}/{y}.png', {
-    attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
+    attribution: 'Map by <a href="http://twitter.com/willpots">@willpots</a>. Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
     maxZoom: 18,
     minZoom: 12,
     maxBounds: L.latLngBounds(L.latLng(42.257841, -71.268311), L.latLng(42.447465, -70.923615))
