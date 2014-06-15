@@ -1,0 +1,29 @@
+// Place all the styles related to the map controller here.
+// They will automatically be included in application.css.
+
+#container {
+  height:100%;
+  width:100%;
+  position:relative;
+  header.main-header {
+    display: block;
+    height:40px;
+    background:#222;
+    .right-text {
+      float:right;
+    }
+    .left-text,
+    .right-text {
+      color:white;
+      font-weight: 300;
+      font-size: 20px;
+      padding:5px 15px;
+    }
+  }
+  #map {
+    display: block;
+    height:calc(~"100% - 40px");
+    width:100%;
+  }
+
+}
