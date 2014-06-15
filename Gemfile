@@ -15,4 +15,8 @@ group :doc do
   gem 'sdoc', require: false
 end
 gem 'unicorn'
+
+# Deployment stuff
 gem 'capistrano'
+gem 'capistrano-bundler', '~> 1.1.2'
+gem 'capistrano-rails', '~> 1.1'
