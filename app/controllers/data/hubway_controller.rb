@@ -1,4 +1,4 @@
-class DataController < ApplicationController
+class Data::HubwayController < ApplicationController
   def capacity
     uri = URI("http://www.thehubway.com/data/stations/bikeStations.xml")
     response = Net::HTTP.get(uri) # => String

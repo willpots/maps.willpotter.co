@@ -8,6 +8,15 @@
 //= require turbolinks
 //= require leaflet
 
+var IM = IM || {};
+
+IM.HubwayStation = function(object) {
+  this._props = object;
+
+};
+IM.HubwayStation.prototype.switchColor = function(type) {
+  
+};
 
 $(document).ready(function() {
   var stations = {};
@@ -65,7 +74,7 @@ $(document).ready(function() {
     minZoom: 12,
     maxBounds: L.latLngBounds(L.latLng(42.257841, -71.268311), L.latLng(42.447465, -70.923615))
   }).addTo(map);
-  $.getJSON("/data/capacity.json", {}, function(result) {
+  $.getJSON("/data/hubway/capacity.json", {}, function(result) {
 
     // Check if station exists in our global station object
     var lastUpdate = new Date(parseInt(result.stations.lastUpdate, 10));
