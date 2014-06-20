@@ -21,9 +21,9 @@ $(document).ready(function() {
   $(".btn").click(function() {
     var action = $(this).children("input").attr("id");
     if (action == "open_bikes") {
-      setColor(stations, "bikes");
+      setColor(data.hubwayStations, "bikes");
     } else if (action == "open_docks") {
-      setColor(stations, "docks");
+      setColor(data.hubwayStations, "docks");
     }
   });
 
