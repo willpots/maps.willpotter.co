@@ -1,1 +1,1 @@
-MBTA = YAML.load_file("#{Rails.root.to_s}/secret/mbta.yml")[Rails.env]
+MBTA = YAML.load_file("#{Rails.root.to_s}/config/mbta.yml")[Rails.env]
