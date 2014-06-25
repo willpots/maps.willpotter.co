@@ -6,11 +6,11 @@ class Data::MbtaController < ApplicationController
   end
 
   def subway_lines
-    red = URI("http://developer.mbta.com/Data/Red.json")
+    red = URI("http://developer.mbta.com/lib/rthr/red.json")
     red_obj = JSON.parse(Net::HTTP.get(red))
-    orange = URI("http://developer.mbta.com/Data/Orange.json")
+    orange = URI("http://developer.mbta.com/lib/rthr/orange.json")
     orange_obj = JSON.parse(Net::HTTP.get(orange))
-    blue = URI("http://developer.mbta.com/Data/Blue.json")
+    blue = URI("http://developer.mbta.com/lib/rthr/blue.json")
     blue_obj = JSON.parse(Net::HTTP.get(blue))
     @data = {:red => red_obj, :orange => orange_obj, :blue => blue_obj}
     respond_to do |format|

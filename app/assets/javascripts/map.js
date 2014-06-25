@@ -15,6 +15,7 @@ $(document).ready(function() {
     mbtaStations: null,
     mbtaLines: null
   };
+  var mbtaStationMarkers = {};
   var keys = ["mbtaLines", "mbtaStations", "hubwayStations"];
   var colors = ['rgb(255,247,251)', 'rgb(236,231,242)', 'rgb(208,209,230)', 'rgb(166,189,219)', 'rgb(116,169,207)', 'rgb(54,144,192)', 'rgb(5,112,176)', 'rgb(4,90,141)', 'rgb(2,56,88)'];
   $('.btn').button();
@@ -54,18 +55,8 @@ $(document).ready(function() {
       });
     });
   }
-  generateColorLegend(colors);
-
-  map = L.map('map').setView([42.349624, -71.083603], 13);
-  L.tileLayer('http://{s}.tiles.mapbox.com/v3/willpots.ih11j74m/{z}/{x}/{y}.png', {
-    attribution: 'Map by <a href="http://twitter.com/willpots">@willpots</a>. Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
-    maxZoom: 18,
-    minZoom: 12,
-    maxBounds: L.latLngBounds(L.latLng(42.257841, -71.268311), L.latLng(42.447465, -70.923615))
-  }).addTo(map);
   function ensureData() {
     var ret = true;
-    console.log("ensuring");
     _.each(data, function(d) {
       if(d === null) {
         ret = false;
@@ -77,6 +68,16 @@ $(document).ready(function() {
       });
     }
   }
+  generateColorLegend(colors);
+
+  map = L.map('map').setView([42.349624, -71.083603], 13);
+  L.tileLayer('http://{s}.tiles.mapbox.com/v3/willpots.ih11j74m/{z}/{x}/{y}.png', {
+    attribution: 'Map by <a href="http://twitter.com/willpots">@willpots</a>. Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
+    maxZoom: 18,
+    minZoom: 12,
+    maxBounds: L.latLngBounds(L.latLng(42.257841, -71.268311), L.latLng(42.447465, -70.923615))
+  }).addTo(map);
+
   $.getJSON("/data/hubway/capacity.json", {}, function(result) {
     // Check if station exists in our global station object
     var stations = L.layerGroup();
@@ -89,10 +90,8 @@ $(document).ready(function() {
           opacity: 0.8,
           fillOpacity: 1,
           radius: 8
-        }).bindPopup(c.name).on('mouseover', function(e) {
-          //open popup;
-          this.openPopup();
-        });
+        })
+        .bindPopup(c.name + "<br>" + c.nbBikes + " bikes<br>" + c.nbEmptyDocks + " docks");
       marker.data = {
                name: c.name,
         bikes: parseInt(c.nbBikes, 10),
@@ -111,22 +110,6 @@ $(document).ready(function() {
       ensureData();
       setColor(stations, "bikes");
     });
-  });
-  $.getJSON("/data/mbta/subway_lines.json", function(result) {
-    arrivals = {};
-    _.each(result, function(line) {
-      _.each(line, function(r) {
-        if(arrivals[r.PlatformKey] == undefined) {
-          arrivals[r.PlatformKey] = [];
-        }
-        arrivals[r.PlatformKey].push({
-          time: r.Time,
-          timeRemaining: r.TimeRemaining,
-          route: r.Route
-        });
-      });
-    });
-    console.log(arrivals);
   });
   $.getJSON("/geodata/mbta_lines.geojson", {}, function(result) {
     mbtaLines = L.geoJson(result.features, {
@@ -166,6 +149,10 @@ $(document).ready(function() {
       }
     });
     data.mbtaStations = mbtaStations;
+    mbtaStations.eachLayer(function(station) {
+      var props = station.feature.properties;
+      mbtaStationMarkers[props.STATION] = station;
+    });
     map.on("zoomend", function(e) {
       var zoom = this.getZoom();
       var markerSize = 5 + (zoom - 12) * 1;
@@ -174,8 +161,43 @@ $(document).ready(function() {
       });
     });
     ensureData();
+    $.getJSON("/data/mbta/subway_lines.json", function(result) {
+      arrivals = {};
+      var currentTime = "";
+      _.each(result, function(line) {
+        _.each(line, function(r) {
+          currentTime = r.CurrentTime;
+          _.each(r.Trips, function(t) {
+            var destination = t.Destination;
+            _.each(t.Predictions, function(p) {
+              var stop = p.Stop.trim();
+              var marker = mbtaStationMarkers[stop];
+              if(marker === undefined) console.log(stop);
+              if(marker.data === undefined) marker.data = {};
+              if(marker.data[destination] === undefined) marker.data[destination] = Infinity;
+              if(p.Seconds < marker.data[destination] && p.Seconds > 60) marker.data[destination] = p.Seconds;
+              // console.log(p.Stop, t.Destination);
+              // console.log(marker.data);
+            });
+          });
+        });
+      });
+      _.each(mbtaStationMarkers, function(marker, station) {
+        popup = "<b>"+station+"</b><br>";
+        _.each(marker.data, function(v, k) {
+           popup += k + " bound train " + formatMinutes(v) + "<br>";
+        });
+        marker.bindPopup(popup);
+      });
+    });
   });
-
+  function formatMinutes(seconds) {
+    var minutes = Math.floor(seconds / 60);
+    minutes += Math.round((seconds - (minutes * 60)) / 60);
+    if(minutes === 0) return "arriving now";
+    if(minutes === 1) return "coming in " + 1 + " minute";
+    else return "coming in "+minutes+" minutes";
+  }
   function pickColor(line) {
     line = line.toLowerCase();
     if (line.indexOf("red") != -1) {
