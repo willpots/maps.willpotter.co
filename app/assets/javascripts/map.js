@@ -23,8 +23,10 @@ $(document).ready(function() {
     var action = $(this).children("input").attr("id");
     if (action == "open_bikes") {
       setColor(data.hubwayStations, "bikes");
+      $(".type").html("Bikes");
     } else if (action == "open_docks") {
       setColor(data.hubwayStations, "docks");
+      $(".type").html("Docks");
     }
   });
 
@@ -174,10 +176,8 @@ $(document).ready(function() {
               var marker = mbtaStationMarkers[stop];
               if(marker === undefined) console.log(stop);
               if(marker.data === undefined) marker.data = {};
-              if(marker.data[destination] === undefined) marker.data[destination] = Infinity;
-              if(p.Seconds < marker.data[destination] && p.Seconds > 60) marker.data[destination] = p.Seconds;
-              // console.log(p.Stop, t.Destination);
-              // console.log(marker.data);
+              if(marker.data[destination] === undefined) marker.data[destination] = [];
+              marker.data[destination].push(p.Seconds);
             });
           });
         });
@@ -185,7 +185,10 @@ $(document).ready(function() {
       _.each(mbtaStationMarkers, function(marker, station) {
         popup = "<b>"+station+"</b><br>";
         _.each(marker.data, function(v, k) {
-           popup += k + " bound train " + formatMinutes(v) + "<br>";
+          v.sort()
+          _.each(v, function(time) {
+             popup += k + " bound train " + formatMinutes(time) + "<br>";
+          });
         });
         marker.bindPopup(popup);
       });
