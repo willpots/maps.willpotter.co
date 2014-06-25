@@ -17,3 +17,6 @@
 /tmp
 
 /secret/*
+
+config/deploy/
+config/deploy.rb
