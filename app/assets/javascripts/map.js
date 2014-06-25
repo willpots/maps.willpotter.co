@@ -89,7 +89,7 @@ $(document).ready(function() {
           color: "#333",
           opacity: 0.8,
           fillOpacity: 1,
-          radius: 8
+          radius: 6
         })
         .bindPopup(c.name + "<br>" + c.nbBikes + " bikes<br>" + c.nbEmptyDocks + " docks");
       marker.data = {
@@ -102,7 +102,7 @@ $(document).ready(function() {
       data.hubwayStations = stations;
       map.on("zoomend", function(e) {
         var zoom = this.getZoom();
-        var markerSize = 5 + (zoom - 12) * 2;
+        var markerSize = Math.round(6 + (zoom - 12) * 1.5);
         data.hubwayStations.eachLayer(function(s) {
           s.setRadius(markerSize);
         });
@@ -126,7 +126,7 @@ $(document).ready(function() {
   });
   $.getJSON("/geodata/mbta_stations.geojson", {}, function(result) {
     var geojsonMarkerOptions = {
-      radius: 10,
+      radius: 5,
       width:2,
       fillColor: "#ff0000",
       color: "#ff0000",
@@ -142,7 +142,7 @@ $(document).ready(function() {
         return {
           color: pickColor(feature.properties.LINE),
           opacity: 1,
-          weight: 3,
+          weight: 2,
           fillColor: "white",
           fillOpacity: 1
         };
