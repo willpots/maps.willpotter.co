@@ -73,7 +73,7 @@ $(document).ready(function() {
   generateColorLegend(colors);
 
   map = L.map('map').setView([42.349624, -71.083603], 13);
-  L.tileLayer('http://{s}.tiles.mapbox.com/v3/willpots.ih11j74m/{z}/{x}/{y}.png', {
+  L.tileLayer('https://api.tiles.mapbox.com/v4/mapbox.light/{z}/{x}/{y}.png?access_token=pk.eyJ1Ijoid2lsbHBvdHMiLCJhIjoiSTJYS0RCNCJ9.jPqwSxzqRHyjLAUoFS3vgQ', {
     attribution: 'Map by <a href="http://twitter.com/willpots">@willpots</a>. Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
     maxZoom: 18,
     minZoom: 12,
@@ -174,10 +174,11 @@ $(document).ready(function() {
             _.each(t.Predictions, function(p) {
               var stop = p.Stop.trim();
               var marker = mbtaStationMarkers[stop];
-              if(marker === undefined) console.log(stop);
+              if(marker === undefined) return;
               if(marker.data === undefined) marker.data = {};
               if(marker.data[destination] === undefined) marker.data[destination] = [];
               marker.data[destination].push(p.Seconds);
+              marker.data[destination] = marker.data[destination].sort();
             });
           });
         });
@@ -185,10 +186,15 @@ $(document).ready(function() {
       _.each(mbtaStationMarkers, function(marker, station) {
         popup = "<b>"+station+"</b><br>";
         _.each(marker.data, function(v, k) {
-          v.sort()
-          _.each(v, function(time) {
-             popup += k + " bound train " + formatMinutes(time) + "<br>";
+          popup += k + " bound train";
+          if(v.length > 1) popup += "s";
+          popup += " coming in ";
+          var ar = v.sort();
+          _.each(ar, function(time, i) {
+            popup += formatMinutes(time);
+            if(i != ar.length - 1) popup += ", ";
           });
+          popup += " minutes<br>";
         });
         marker.bindPopup(popup);
       });
@@ -197,9 +203,8 @@ $(document).ready(function() {
   function formatMinutes(seconds) {
     var minutes = Math.floor(seconds / 60);
     minutes += Math.round((seconds - (minutes * 60)) / 60);
-    if(minutes === 0) return "arriving now";
-    if(minutes === 1) return "coming in " + 1 + " minute";
-    else return "coming in "+minutes+" minutes";
+    if(minutes === 0) return "now";
+    return minutes;
   }
   function pickColor(line) {
     line = line.toLowerCase();
