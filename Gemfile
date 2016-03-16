@@ -19,7 +19,7 @@ end
 gem 'unicorn'
 
 # Deployment stuff
-gem 'capistrano'
+gem 'capistrano', '~> 3.2.1'
 gem 'capistrano-bundler'
 gem 'capistrano-rails'
 gem 'capistrano-rvm'
